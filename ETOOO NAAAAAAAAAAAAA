@@ -1,0 +1,74 @@
+/***********************************************************
+*   TEMPERATURE SENSOR USING DHT11 WITH SMS NOTIFICATION   *
+*           SUBMITTED BY: VELEZ, CLARK DENNIEL             *
+*          CORCUERA_AARON, RAMOS_RODOLFO                 *
+*         SUBMITTED TO: PROF. MICHAEL T. SAMONTE           *
+************************************************************/
+
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <SoftwareSerial.h>
+#include <LiquidCrystal_I2C.h>
+
+#define DHTPIN 3
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+SoftwareSerial sim800l(8, 9); // RX, TX
+
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+int buzzerPin = 4;
+
+void setup() {
+  Serial.begin(9600);
+
+  sim800l.begin(9600);
+  sim800l.println("AT");
+  
+  dht.begin();
+
+    Serial.begin(9600);
+    Serial.println("TEMPERATURE SENSOR USING DHT11 WITH SMS NOTIFICATION");
+    dht.begin();
+    lcd.begin();
+    lcd.backlight(); 
+
+  pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+  float temperature = dht.readTemperature();
+
+  if (temperature >= 38.0) {
+    lcd.setCursor(0, 0);
+    lcd.print("Temperature: ");
+    lcd.print(temperature);
+    lcd.print("C");
+    lcd.setCursor(0, 1);
+    lcd.print("High Temperature ");
+    lcd.setCursor(0, 2);
+    lcd.print("Detected!!");
+    tone(buzzerPin, 1000, 1000); // Buzzer alarm sound
+
+    sendSMS("+639501598132", "HIGH TEMPERATURE DETECTED, IMMIDIATE ACTION NEEDED"); // Replace YourRecipientNumber with the actual recipient number
+
+    noTone(buzzerPin);
+  }
+  
+  delay(2000);
+}
+
+void sendSMS(const char* phone, const char* message) {
+  sim800l.println("AT+CMGF=1");      // Set SMS mode to text
+  delay(100);
+  sim800l.print("AT+CMGS=\"");
+  sim800l.print(phone);
+  sim800l.println("\""); 
+  delay(100);
+  sim800l.print(message);
+  delay(100);
+  sim800l.println((char)26);          // End message with Ctrl+Z
+  delay(5000);                       // Delay to give time for sending SMS
+}
