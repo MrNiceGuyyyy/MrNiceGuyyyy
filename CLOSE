@@ -1,0 +1,83 @@
+#include <DHT.h>;
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <SoftwareSerial.h>
+
+#define DHTPIN 3
+#define DHTTYPE DHT11  
+DHT dht(DHTPIN, DHTTYPE); 
+#define BUZZER_PIN 3       // Buzzer pin
+#define SIM800_TX_PIN 4    // SIM800L V2 module TX pin
+#define SIM800_RX_PIN 5    // SIM800L V2 module RX pin
+
+#define ALERT_TEMP 40.0    // Temperature to trigger the alert
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Change I2C address if necessary
+
+void setup() {
+    Serial.begin(9600);
+    Serial.println("DHT SENSOR WITH LCD DISPLAY APPLICATION");
+    dht.begin();
+    lcd.begin();
+    lcd.backlight(); 
+  
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+  
+  Serial.begin(9600);
+  sim800l.begin(9600);
+  delay(2000);
+  Serial.println("AT");  // Check SIM800L communication
+  sim800l_serial.println("AT");
+  delay(1000);
+  Serial.println("AT+CMGF=1");  // Set SMS mode to text
+  sim800l_serial.println("AT+CMGF=1");
+  delay(1000);
+}
+
+void loop() {
+  int chk = DHT.read11(DHTPIN);
+  float temp = DHT.temperature;
+
+  if (chk == DHTLIB_OK) {
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.println("°C");
+    lcd.clear();
+    lcd.print("Temp: ");
+    lcd.print(temp);
+    lcd.print("C");
+    
+    // Trigger alert if temperature reaches ALERT_TEMP
+    if (temp >= ALERT_TEMP) {
+      digitalWrite(BUZZER_PIN, HIGH);
+      sendSmsAlert(temp);
+    }
+    else {
+      digitalWrite(BUZZER_PIN, LOW);
+    }
+  }
+  else {
+    Serial.println("DHT11 Error");
+  }
+  
+  delay(2000);
+}
+
+void sendSmsAlert(float temperature) {
+  delay(1000);
+  Serial.println("AT+CMGS=\"+1234567890\"");  // Replace with recipient's phone number
+  sim800l_serial.println("AT+CMGS=\"+6394556394776\"");  // Replace with recipient's phone number
+  delay(1000);
+  Serial.print("ALERT! Temperature is ");
+  Serial.print(temperature);
+  Serial.println("°C.");
+  sim800l_serial.print("ALERT! Temperature is ");
+  sim800l_serial.print(temperature);
+  sim800l_serial.println("C.");
+  delay(100);
+  sim800l_serial.println((char)26);
+  delay(1000);
+  Serial.println("SMS Sent");
+}
