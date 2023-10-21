@@ -4,6 +4,7 @@ public class OhmsLawCalculator {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         int choice;
+        double voltage, current, resistance; // Moved variable declarations outside the loop
 
         do {
             System.out.println("Ohm's Law Calculator");
@@ -13,8 +14,6 @@ public class OhmsLawCalculator {
             System.out.println("4. Exit");
             System.out.print("Enter your choice (1/2/3/4): ");
             choice = input.nextInt();
-
-            double voltage, current, resistance;
 
             switch (choice) {
                 case 1:
@@ -55,3 +54,4 @@ public class OhmsLawCalculator {
 
         input.close();
     }
+}
