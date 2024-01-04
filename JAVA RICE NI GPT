@@ -1,0 +1,57 @@
+import java.util.Scanner;
+
+public class OhmsLawCalculator {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        char choice;
+        double voltage, current, resistance; // Moved variable declarations outside the loop
+
+        do {
+            System.out.println("Ohm's Law Calculator");
+            System.out.println("V. Calculate Voltage (V)");
+            System.out.println("I. Calculate Current (I)");
+            System.out.println("R. Calculate Resistance (R)");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice (V/I/R/4): ");
+            choice = input.next().charAt(0);
+
+            switch (Character.toUpperCase(choice)) {
+                case 'V':
+                    System.out.print("Enter current (I): ");
+                    current = input.nextDouble();
+                    System.out.print("Enter resistance (R): ");
+                    resistance = input.nextDouble();
+                    voltage = current * resistance;
+                    System.out.println("Voltage (V) = " + voltage + " volts");
+                    break;
+
+                case 'I':
+                    System.out.print("Enter voltage (V): ");
+                    voltage = input.nextDouble();
+                    System.out.print("Enter resistance (R): ");
+                    resistance = input.nextDouble();
+                    current = voltage / resistance;
+                    System.out.println("Current (I) = " + current + " amperes");
+                    break;
+
+                case 'R':
+                    System.out.print("Enter voltage (V): ");
+                    voltage = input.nextDouble();
+                    System.out.print("Enter current (I): ");
+                    current = input.nextDouble();
+                    resistance = voltage / current;
+                    System.out.println("Resistance (R) = " + resistance + " ohms");
+                    break;
+
+                case '4':
+                    System.out.println("Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please enter V, I, R, or 4.");
+            }
+        } while (choice != '4');
+
+        input.close();
+    }
+}
